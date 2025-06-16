@@ -1,6 +1,6 @@
 package: ROOT
 version: "%(tag_basename)s"
-tag: "v6-36-00"
+tag: "v6-32-14"
 source: https://github.com/root-project/root.git
 requires:
   - arrow
