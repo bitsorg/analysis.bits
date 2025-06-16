@@ -1,10 +1,9 @@
 package: ROOT
 version: "%(tag_basename)s"
-tag: "v6-32-06-alice7"
-source: https://github.com/alisw/root.git
+tag: "v6-36-00"
+source: https://github.com/root-project/root.git
 requires:
   - arrow
-  - AliEn-Runtime:(?!.*ppc64)
   - GSL
   - opengl:(?!osx)
   - Xdevel:(?!osx)
@@ -88,12 +87,6 @@ case $ARCHITECTURE in
   ;;
 esac
 
-if [[ $ALIEN_RUNTIME_VERSION ]]; then
-  # AliEn-Runtime: we take OpenSSL and libxml2 from there, in case they
-  # were not taken from the system
-  OPENSSL_ROOT=${OPENSSL_ROOT:+$ALIEN_RUNTIME_ROOT}
-  LIBXML2_ROOT=${LIBXML2_REVISION:+$ALIEN_RUNTIME_ROOT}
-fi
 [[ $SYS_OPENSSL_ROOT ]] && OPENSSL_ROOT=$SYS_OPENSSL_ROOT
 
 # ROOT 6+: enable Python
@@ -191,7 +184,7 @@ cmake $SOURCEDIR                                                                
       ${DISABLE_MYSQL:+-Dmysql=OFF}                                                    \
       ${ROOT_HAS_PYTHON:+-DPYTHON_PREFER_VERSION=3}                                    \
       ${PYTHON_EXECUTABLE:+-DPYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}"}                 \
--DCMAKE_PREFIX_PATH="$FREETYPE_ROOT;$SYS_OPENSSL_ROOT;$GSL_ROOT;$ALIEN_RUNTIME_ROOT;$PYTHON_ROOT;$PYTHON_MODULES_ROOT;$LIBPNG_ROOT;$LZMA_ROOT;$PROTOBUF_ROOT;$FFTW3_ROOT"
+-DCMAKE_PREFIX_PATH="$FREETYPE_ROOT;$SYS_OPENSSL_ROOT;$GSL_ROOT;$PYTHON_ROOT;$PYTHON_MODULES_ROOT;$LIBPNG_ROOT;$LZMA_ROOT;$PROTOBUF_ROOT;$FFTW3_ROOT"
 
 # Workaround issue with cmake 3.29.0
 sed -i.removeme '/deps = gcc/d' build.ninja
@@ -211,11 +204,6 @@ Unix.*.Root.PluginPath: $(ROOT_PLUGIN_PATH):$(ROOTSYS)/etc/plugins:
 Unix.*.Root.DynamicPath: .:$(ROOT_DYN_PATH):
 EOF
 mv system.rootrc.0 $INSTALLROOT/etc/system.rootrc
-
-if [[ $ALIEN_RUNTIME_VERSION ]]; then
-  # Get them from AliEn-Runtime in the Modulefile
-  unset OPENSSL_VERSION LIBXML2_VERSION OPENSSL_REVISION LIBXML2_REVISION
-fi
 
 # Make some CMake files used by other projects relocatable
 sed -i.deleteme -e "s!$BUILDDIR!$INSTALLROOT!g" $(find "$INSTALLROOT" -name '*.cmake') || true
